@@ -72,7 +72,7 @@ export function TicketForm({ user }: TicketFormProps) {
         const atendente = atendentes.find(a => a.id === formData.atendente_id);
         const atendenteNome = atendente?.nome || '';
 
-        const webhookUrl = `http://fuzymc.com.br:5678/webhook-test/trello-ctn?atendente=${encodeURIComponent(atendenteNome)}&matricula=${encodeURIComponent(formData.matricula)}&nome=${encodeURIComponent(formData.nome)}&valor=${formData.valor}&qtd=${formData.qtd_mensalidades}&telefone=${formData.telefone}&categoria=${formData.categoria}`;
+        const webhookUrl = `http://fuzymc.com.br:5678/webhook/trello-ctn?atendente=${encodeURIComponent(atendenteNome)}&matricula=${encodeURIComponent(formData.matricula)}&nome=${encodeURIComponent(formData.nome)}&valor=${formData.valor}&qtd=${formData.qtd_mensalidades}&telefone=${formData.telefone}&categoria=${formData.categoria}`;
         
         await fetch(webhookUrl, {
           method: 'GET',
