@@ -1,17 +1,57 @@
 import React from 'react';
-import { Users, FileText, Home } from 'lucide-react';
+import { Users, FileText, Home, UserPlus, CheckSquare, LogOut } from 'lucide-react';
+import type { Usuario } from '../types';
 
 interface NavigationProps {
-  currentView: 'ticket' | 'atendentes' | 'historico';
-  onViewChange: (view: 'ticket' | 'atendentes' | 'historico') => void;
+  currentView: 'ticket' | 'atendentes' | 'historico' | 'usuarios' | 'solicitacoes';
+  onViewChange: (view: 'ticket' | 'atendentes' | 'historico' | 'usuarios' | 'solicitacoes') => void;
+  user: Usuario;
+  onLogout: () => void;
 }
 
-export function Navigation({ currentView, onViewChange }: NavigationProps) {
-  const navItems = [
-    { id: 'ticket' as const, label: 'Novo Ticket', icon: FileText },
-    { id: 'atendentes' as const, label: 'Atendentes', icon: Users },
-    { id: 'historico' as const, label: 'Histórico', icon: Home },
-  ];
+export function Navigation({ currentView, onViewChange, user, onLogout }: NavigationProps) {
+  const getNavItems = () => {
+    const baseItems = [
+      { id: 'historico' as const, label: 'Histórico', icon: Home },
+    ];
+
+    if (user.equipe === 'ligacao') {
+      return [
+        { id: 'ticket' as const, label: 'Novo Ticket', icon: FileText },
+        ...baseItems,
+      ];
+    }
+
+    if (user.equipe === 'whatsapp') {
+      return [
+        { id: 'solicitacoes' as const, label: 'Solicitações', icon: CheckSquare },
+        ...baseItems,
+      ];
+    }
+
+    if (user.equipe === 'supervisao') {
+      return [
+        { id: 'ticket' as const, label: 'Novo Ticket', icon: FileText },
+        { id: 'atendentes' as const, label: 'Atendentes', icon: Users },
+        { id: 'usuarios' as const, label: 'Usuários', icon: UserPlus },
+        { id: 'solicitacoes' as const, label: 'Solicitações', icon: CheckSquare },
+        ...baseItems,
+      ];
+    }
+
+    return baseItems;
+  };
+
+  const navItems = getNavItems();
+
+  const getEquipeColor = (equipe: string) => {
+    switch (equipe) {
+      case 'supervisao': return 'bg-purple-100 text-purple-800';
+      case 'whatsapp': return 'bg-green-100 text-green-800';
+      case 'ligacao': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <nav className="bg-white shadow-lg border-b border-gray-200">
@@ -19,10 +59,18 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
             <FileText className="w-8 h-8 text-blue-600" />
-            <h1 className="text-xl font-bold text-gray-900">Sistema de Tickets</h1>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Sistema de Tickets</h1>
+              <div className="flex items-center space-x-2 mt-1">
+                <span className="text-sm text-gray-600">Olá, {user.nome}</span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getEquipeColor(user.equipe)}`}>
+                  {user.equipe.charAt(0).toUpperCase() + user.equipe.slice(1)}
+                </span>
+              </div>
+            </div>
           </div>
           
-          <div className="flex space-x-1">
+          <div className="flex items-center space-x-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -40,6 +88,15 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
                 </button>
               );
             })}
+            
+            <button
+              onClick={onLogout}
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 text-red-600 hover:text-red-800 hover:bg-red-50 ml-4"
+              title="Sair"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="font-medium">Sair</span>
+            </button>
           </div>
         </div>
       </div>
